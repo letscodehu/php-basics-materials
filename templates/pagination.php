@@ -1,2 +1,5 @@
-<div class="btn-group" role="group">
-</div>
+<nav>
+    <ul class="pagination">
+        <?php echo paginate(count($pictures), $page, $size) ?>
+    </ul>
+</nav>
