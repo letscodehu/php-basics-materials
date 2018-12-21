@@ -5,6 +5,14 @@ $page = $_GET["page"] ?? 1;
 
 $possiblePageSizes = [10, 25, 30, 40, 50];
 
+$connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
+
+$result = mysqli_query($connection, 'SELECT * FROM photos');
+
+$row = mysqli_fetch_assoc($result);
+
+var_dump($row);
+
 $pictures = array_fill(0, 100,  [
     "title" => "másik kép",
     "thumbnail" => "https://picsum.photos/200/200"
