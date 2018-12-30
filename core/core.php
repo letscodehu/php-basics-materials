@@ -7,17 +7,18 @@ $possiblePageSizes = [10, 25, 30, 40, 50];
 
 $connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
 
-$result = mysqli_query($connection, 'SELECT * FROM photos');
+$total = getTotal($connection);
+$offset = ($page - 1) * $size;
 
-$row = mysqli_fetch_assoc($result);
+$result = mysqli_query($connection, 'SELECT * FROM photos LIMIT '.$size. ' OFFSET '. $offset);
 
-var_dump($row);
+$content = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-$pictures = array_fill(0, 100,  [
-    "title" => "másik kép",
-    "thumbnail" => "https://picsum.photos/200/200"
-]);
-$content = array_slice($pictures, ($page - 1)*$size, $size);
+function getTotal($connection) {
+    $result = mysqli_query($connection, "SELECT count(*) as count FROM photos");
+    $row = mysqli_fetch_assoc($result);
+    return $row['count'];
+}
 
 function paginate($total, $currentPage, $size) {
     $page = 0;
