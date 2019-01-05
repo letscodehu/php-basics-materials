@@ -10,9 +10,15 @@ $connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db
 $total = getTotal($connection);
 $offset = ($page - 1) * $size;
 
-$result = mysqli_query($connection, 'SELECT * FROM photos LIMIT '.$size. ' OFFSET '. $offset);
+$content = getPhotosPaginated($connection, $size, $offset);
 
-$content = mysqli_fetch_all($result, MYSQLI_ASSOC);
+function getPhotosPaginated($connection, $size, $offset) {
+    $statement = mysqli_prepare($connection, 'SELECT * FROM photos LIMIT ? OFFSET ?');
+    mysqli_stmt_bind_param($statement, "ii", $size, $offset);
+    mysqli_stmt_execute($statement);
+    $result = mysqli_stmt_get_result($statement);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
 
 function getTotal($connection) {
     $result = mysqli_query($connection, "SELECT count(*) as count FROM photos");
