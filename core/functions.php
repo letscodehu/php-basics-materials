@@ -1,20 +1,4 @@
-<?php
-
-$size = $_GET["size"] ?? 15;
-$page = $_GET["page"] ?? 1;
-
-$possiblePageSizes = [10, 25, 30, 40, 50];
-
-$connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
-if (!$connection) {
-    logMessage('ERROR',"Connection error: ". mysqli_connect_error());
-    errorPage();
-} 
-
-$total = getTotal($connection);
-$offset = ($page - 1) * $size;
-
-$content = getPhotosPaginated($connection, $size, $offset);
+<?php 
 
 function getPhotosPaginated($connection, $size, $offset) {
     if ($statement = mysqli_prepare($connection, 'SELECT * FROM photos LIMIT ? OFFSET ?')) {
