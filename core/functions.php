@@ -60,3 +60,23 @@ function paginate($total, $currentPage, $size) {
     }
     return $markup;
 }
+
+$routes = [
+];
+
+function route($action, $callable) {
+    global $routes;
+    $pattern = "%^$action$%";
+    $routes[$pattern] = $callable;
+}
+
+function dispatch($action, $notFound) {
+    global $routes;
+    foreach ($routes as $pattern => $callable) {
+        if (preg_match($pattern, $action, $matches)) {
+            $callable($matches);
+            return;
+        }
+    }
+    $notFound();
+}
