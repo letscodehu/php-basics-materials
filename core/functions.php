@@ -74,9 +74,74 @@ function dispatch($action, $notFound) {
     global $routes;
     foreach ($routes as $pattern => $callable) {
         if (preg_match($pattern, $action, $matches)) {
-            $callable($matches);
-            return;
+            return $callable($matches);
         }
     }
-    $notFound();
+    return $notFound();
+}
+
+function getImageById($connection, $id) {
+    if ($statement = mysqli_prepare($connection, 'SELECT * FROM photos WHERE id = ?')) {
+        mysqli_stmt_bind_param($statement, "i", $id);
+        mysqli_stmt_execute($statement);
+        $result = mysqli_stmt_get_result($statement);
+        return mysqli_fetch_assoc($result);
+    } else {
+        logMessage('ERROR','Query error: '. mysqli_error($connection));
+        errorPage();
+    }
+}
+
+function singleImageController($params) {
+    $connection = getConnection();
+    $picture = getImageById($connection, $params["id"]);
+    return [
+        "single",
+        [
+            "picture" => $picture
+        ]
+        ];
+}
+
+function getConnection() {
+    global $config;
+    $connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
+    if (!$connection) {
+        logMessage('ERROR',"Connection error: ". mysqli_connect_error());
+        errorPage();
+    } 
+    return $connection;
+}
+
+function homeController() {
+    $size = $_GET["size"] ?? 15;
+    $page = $_GET["page"] ?? 1;    
+    $connection = getConnection();
+    $total = getTotal($connection);
+    $offset = ($page - 1) * $size;
+    $content = getPhotosPaginated($connection, $size, $offset);
+    $possiblePageSizes = [10, 25, 30, 40, 50];
+  
+    return [
+        "home",
+        [
+            "content" => $content,
+            "total" => $total,
+            "size" => $size,
+            "page" => $page,
+            "offset" => $offset,
+            "possiblePageSizes" => $possiblePageSizes
+        ]
+    ];
+}
+
+function aboutController() {
+    echo 'about';
+}
+
+
+function notFoundController() {
+    return [
+        "404", []
+    ];
 }

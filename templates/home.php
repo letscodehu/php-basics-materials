@@ -12,7 +12,7 @@
     </form>
     <?php require "pagination.php"; ?>
     <?php foreach ($content as $picture): ?>
-        <img title="<?php echo $picture["title"] ?>" src="<?php echo $picture["thumbnail"] ?>" />
+        <a href="/image/<?php echo $picture["id"] ?>"><img title="<?php echo $picture["title"] ?>" src="<?php echo $picture["thumbnail"] ?>" /></a>
     <?php endforeach; ?>
     <?php require "pagination.php"; ?>
 </main>
