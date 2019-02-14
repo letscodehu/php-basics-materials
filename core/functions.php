@@ -20,7 +20,6 @@ function logMessage($level, $message) {
 
 function errorPage() {
     include "templates/error.php";
-    die();
 }
 
 function getTotal($connection) {
@@ -64,17 +63,20 @@ function paginate($total, $currentPage, $size) {
 $routes = [
 ];
 
-function route($action, $callable) {
+function route($action, $callable, $method = "GET") {
     global $routes;
     $pattern = "%^$action$%";
-    $routes[$pattern] = $callable;
+    $routes[strtoupper($method)][$pattern] = $callable;
 }
 
 function dispatch($action, $notFound) {
     global $routes;
-    foreach ($routes as $pattern => $callable) {
-        if (preg_match($pattern, $action, $matches)) {
-            return $callable($matches);
+    $method = $_SERVER["REQUEST_METHOD"]; // POST GET PATCH DELETE
+    if (array_key_exists($method, $routes)) {
+        foreach ($routes[$method] as $pattern => $callable) {
+            if (preg_match($pattern, $action, $matches)) {
+                return $callable($matches);
+            }
         }
     }
     return $notFound();
@@ -98,6 +100,7 @@ function singleImageController($params) {
     return [
         "single",
         [
+            "title" => $picture["title"],
             "picture" => $picture
         ]
         ];
@@ -125,6 +128,7 @@ function homeController() {
     return [
         "home",
         [
+            "title" => "Home",
             "content" => $content,
             "total" => $total,
             "size" => $size,
@@ -135,13 +139,30 @@ function homeController() {
     ];
 }
 
-function aboutController() {
-    echo 'about';
+function singleImageEditController() {
+    return [
+        "redirect:/",
+        [
+            "title" => "Single image edit"
+        ]
+        ];
 }
+
+function singleImageDeleteController() {
+    return [
+        "404",
+        [
+            "title" => "Single image delete"
+        ]
+        ];
+}
+
 
 
 function notFoundController() {
     return [
-        "404", []
+        "404", [
+            "title" => "The page you are looking for is not found."
+        ]
     ];
 }
