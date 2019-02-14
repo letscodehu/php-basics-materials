@@ -141,18 +141,16 @@ function homeController() {
 
 function singleImageEditController() {
     return [
-        "redirect:/",
+        "redirect:/edit",
         [
-            "title" => "Single image edit"
         ]
         ];
 }
 
 function singleImageDeleteController() {
     return [
-        "404",
+        "redirect:/delete",
         [
-            "title" => "Single image delete"
         ]
         ];
 }
