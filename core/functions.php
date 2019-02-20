@@ -139,17 +139,43 @@ function homeController() {
     ];
 }
 
-function singleImageEditController() {
+function updateImage($connection, $id, $title) {
+    if ($statement = mysqli_prepare($connection, 'UPDATE photos SET title = ? WHERE id = ?')) {
+        mysqli_stmt_bind_param($statement, "si", $title, $id);
+        mysqli_stmt_execute($statement);
+    } else {
+        logMessage('ERROR','Query error: '. mysqli_error($connection));
+        errorPage();
+    }
+}
+
+function singleImageEditController($params) {
+    $title = $_POST["title"];
+    $id = $params["id"];
+    $connection = getConnection();
+    updateImage($connection, $id, $title);
     return [
-        "redirect:/edit",
+        "redirect:/image/$id",
         [
         ]
         ];
 }
 
-function singleImageDeleteController() {
+function deleteImage($connection, $id) {
+    if ($statement = mysqli_prepare($connection, 'DELETE FROM photos WHERE id = ?')) {
+        mysqli_stmt_bind_param($statement, "i", $id);
+        mysqli_stmt_execute($statement);
+    } else {
+        logMessage('ERROR','Query error: '. mysqli_error($connection));
+        errorPage();
+    }
+}
+
+function singleImageDeleteController($params) {
+    $connection = getConnection();
+    deleteImage($connection, $params["id"]);
     return [
-        "redirect:/delete",
+        "redirect:/",
         [
         ]
         ];

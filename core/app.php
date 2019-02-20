@@ -2,7 +2,6 @@
 ob_start();
 $uri = $_SERVER["REQUEST_URI"];
 $cleaned = explode("?", $uri)[0];
-echo "42342423";
 route('/', 'homeController');
 route('/about', 'aboutController');
 route('/image/(?<id>[\d]+)', 'singleImageController');
