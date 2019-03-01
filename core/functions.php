@@ -161,6 +161,10 @@ function singleImageEditController($params) {
         ];
 }
 
+function esc($string) {
+    echo htmlspecialchars($string);
+}
+
 function deleteImage($connection, $id) {
     if ($statement = mysqli_prepare($connection, 'DELETE FROM photos WHERE id = ?')) {
         mysqli_stmt_bind_param($statement, "i", $id);
