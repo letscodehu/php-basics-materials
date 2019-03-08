@@ -185,6 +185,40 @@ function singleImageDeleteController($params) {
         ];
 }
 
+function loginFormController() {
+    $containsError = array_key_exists("containsError", $_COOKIE);
+    setcookie("containsError", "", time() - 1);
+    return [
+        "login", [
+            "title" => "Login",
+            "containsError" => $containsError
+        ]
+    ];    
+}
+
+function loginSubmitController() {
+    $password = trim($_POST["password"]);
+    $email = trim($_POST["email"]);
+    if ($password == "password" && $email == "training@gmail.com") {
+        setcookie("user", $email, time() + 3600);
+        $view = "redirect:/";
+    } else {
+        setcookie("containsError", 1, time() + 1);
+        $view = "redirect:/login";
+    }
+    return [
+        $view, []
+    ];    
+}
+
+
+function logoutSubmitController() {
+    setcookie("user", "", time() -1);
+    return [
+        "redirect:/", [
+        ]
+    ];
+}
 
 
 function notFoundController() {
