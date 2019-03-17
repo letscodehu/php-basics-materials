@@ -94,18 +94,6 @@ function getImageById($connection, $id) {
     }
 }
 
-function singleImageController($params) {
-    $connection = getConnection();
-    $picture = getImageById($connection, $params["id"]);
-    return [
-        "single",
-        [
-            "title" => $picture["title"],
-            "picture" => $picture
-        ]
-        ];
-}
-
 function getConnection() {
     global $config;
     $connection = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
@@ -114,29 +102,6 @@ function getConnection() {
         errorPage();
     } 
     return $connection;
-}
-
-function homeController() {
-    $size = $_GET["size"] ?? 15;
-    $page = $_GET["page"] ?? 1;    
-    $connection = getConnection();
-    $total = getTotal($connection);
-    $offset = ($page - 1) * $size;
-    $content = getPhotosPaginated($connection, $size, $offset);
-    $possiblePageSizes = [10, 25, 30, 40, 50];
-  
-    return [
-        "home",
-        [
-            "title" => "Home",
-            "content" => $content,
-            "total" => $total,
-            "size" => $size,
-            "page" => $page,
-            "offset" => $offset,
-            "possiblePageSizes" => $possiblePageSizes
-        ]
-    ];
 }
 
 function updateImage($connection, $id, $title) {
@@ -149,17 +114,23 @@ function updateImage($connection, $id, $title) {
     }
 }
 
-function singleImageEditController($params) {
-    $title = $_POST["title"];
-    $id = $params["id"];
-    $connection = getConnection();
-    updateImage($connection, $id, $title);
-    return [
-        "redirect:/image/$id",
-        [
-        ]
-        ];
+function loginUser($connection, $email, $password) {
+    if ($statement = mysqli_prepare($connection, 'SELECT name, password FROM photos_users WHERE email = ?')) {
+        mysqli_stmt_bind_param($statement, "s", $email);
+        mysqli_stmt_execute($statement);
+        $result = mysqli_stmt_get_result($statement);
+        $record = mysqli_fetch_assoc($result);
+        if ($record != null && password_verify($password, $record["password"])) {
+            return $record;
+        } else {
+            return null;
+        }
+    } else {
+        logMessage('ERROR','Query error: '. mysqli_error($connection));
+        errorPage();
+    }
 }
+
 
 function esc($string) {
     echo htmlspecialchars($string);
@@ -175,66 +146,10 @@ function deleteImage($connection, $id) {
     }
 }
 
-function singleImageDeleteController($params) {
-    $connection = getConnection();
-    deleteImage($connection, $params["id"]);
-    return [
-        "redirect:/",
-        [
-        ]
-        ];
-}
-
-function loginFormController() {
-    $containsError = array_key_exists("containsError", $_SESSION);
-    unset($_SESSION["containsError"]);
-    return [
-        "login", [
-            "title" => "Login",
-            "containsError" => $containsError
-        ]
-    ];    
-}
-
-function loginSubmitController() {
-    $password = trim($_POST["password"]);
-    $email = trim($_POST["email"]);
-    if ($password == "password" && $email == "training@gmail.com") {
-        $_SESSION["user"] = [
-            "name" => "Letscode.hu"
-        ];
-        $view = "redirect:/";
-    } else {
-        $_SESSION["containsError"] = 1;
-        $view = "redirect:/login";
-    }
-    return [
-        $view, []
-    ];    
-}
-
 function createUser() {
     $loggedIn = array_key_exists("user", $_SESSION);
     return [
         "loggedIn" => $loggedIn,
         "name" => $loggedIn ? $_SESSION["user"]["name"] : null
-    ];
-}
-
-
-function logoutSubmitController() {
-    unset($_SESSION["user"]);
-    return [
-        "redirect:/", [
-        ]
-    ];
-}
-
-
-function notFoundController() {
-    return [
-        "404", [
-            "title" => "The page you are looking for is not found."
-        ]
     ];
 }
