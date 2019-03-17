@@ -186,8 +186,8 @@ function singleImageDeleteController($params) {
 }
 
 function loginFormController() {
-    $containsError = array_key_exists("containsError", $_COOKIE);
-    setcookie("containsError", "", time() - 1);
+    $containsError = array_key_exists("containsError", $_SESSION);
+    unset($_SESSION["containsError"]);
     return [
         "login", [
             "title" => "Login",
@@ -200,10 +200,12 @@ function loginSubmitController() {
     $password = trim($_POST["password"]);
     $email = trim($_POST["email"]);
     if ($password == "password" && $email == "training@gmail.com") {
-        setcookie("user", $email, time() + 3600);
+        $_SESSION["user"] = [
+            "name" => "Letscode.hu"
+        ];
         $view = "redirect:/";
     } else {
-        setcookie("containsError", 1, time() + 1);
+        $_SESSION["containsError"] = 1;
         $view = "redirect:/login";
     }
     return [
@@ -211,9 +213,17 @@ function loginSubmitController() {
     ];    
 }
 
+function createUser() {
+    $loggedIn = array_key_exists("user", $_SESSION);
+    return [
+        "loggedIn" => $loggedIn,
+        "name" => $loggedIn ? $_SESSION["user"]["name"] : null
+    ];
+}
+
 
 function logoutSubmitController() {
-    setcookie("user", "", time() -1);
+    unset($_SESSION["user"]);
     return [
         "redirect:/", [
         ]

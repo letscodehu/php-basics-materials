@@ -20,6 +20,6 @@ if(preg_match("%^redirect\:%", $view)) {
     die;
 }
 extract($data);
-$loggedIn = array_key_exists("user", $_COOKIE);
+$user = createUser();
 ob_clean();
 require_once "templates/layout.php";
